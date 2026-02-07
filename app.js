@@ -107,7 +107,7 @@ function checkState() {
 		reset()
 	}
 	else if (computerScore === 5) {
-		gameOverPara.innerText = `Computer won 🎧    Try Again? 🧐`
+		gameOverPara.innerText = `Computer won 🎧    Try Again? 🥲`
 		gameOver()
 		reset()
 	}
