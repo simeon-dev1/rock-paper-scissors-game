@@ -1,135 +1,153 @@
-console.log("Hi")
 
-button1 = document.querySelector(".button1")
-button2 = document.querySelector(".button2")
+//DIVs
+startGameDiv = document.querySelector("#start-game")
+gamePlayDiv = document.querySelector("#game-play-div")
+humanScoreDiv = document.querySelector("#human-score")
+computerScoreDiv = document.querySelector("#computer-score")
+gameOverDiv = document.querySelector("#game-over-div")
+scoreBoard = document.querySelector("#score-board")
+
+//BUTTONS
+playButton = document.querySelector("#play-btn")
+optionButtons = document.querySelectorAll(".option-btn")
+playAgainButton = document.querySelector("#game-over-div > button")
+
+//DISPLAYS
+//Choice Displays
+humanChoiceDisplay = document.querySelector("#human-choice")
+computerChoiceDisplay = document.querySelector("#computer-choice")
+//Single Round Result Display
+roundResultDisplay = document.querySelector("#round-result")
+//Game Over Display
+gameOverPara = document.querySelector("#game-over-div > p")
+//App Heading Display
+appTitle = document.querySelector("h1")
+
+//BUTTON ACTS
+//Button function to start game
+playButton.addEventListener("click", () => {
+	startGameDiv.classList.toggle("hide")
+	gamePlayDiv.classList.toggle("hide")
+})
+
+//Button for getting Human Choice and Playing a Round
+optionButtons.forEach((button) => {
+	button.addEventListener("click", () => {
+		playRound(button.id.toUpperCase())
+	})
+})
+
+//Button to Restart Game When Game Over
+playAgainButton.addEventListener("click", () => {
+	gameOverDiv.classList.toggle("hide")
+	appTitle.classList.toggle("hide")
+	startGameDiv.classList.toggle("hide")
+})
+
+
+let choiceEmojis = {
+	'ROCK': "🪨",
+	'PAPER': "🧻",
+	'SCISSORS': "✂️",
+}
+
+console.log(choiceEmojis.PAPER, choiceEmojis.SCISSORS)
 
 function getComputerChoice() {
 	let a = Math.random()
 	let choice =  ""
 	if (a <= 0.3) {
-		choice = "rock"
+		choice = "ROCK"
 	}
 	else if (a <= 0.6) {
-		choice = "paper"
+		choice = "PAPER"
 	}
 	else {
-		choice = "scissors"
+		choice = "SCISSORS"
 	};
 	return choice
 };
 
 
-function getHumanChoice() {
-	let input = prompt("Enter Rock, Paper or Scissors; ").toLowerCase()
-	let choice = ""
-	if (input === "rock" || input === "scissors" || input === "paper") {
-		choice = input;
-	}
-	else {
-		alert("ENTER 'Rock', 'Paper' OR 'Scissors' TO MAKE A CHOICE")
-		getHumanChoice()
-	};
-	return choice;
-};
-
 function humanWin() {
 	humanScore++;
-	console.log(`You  won.  \n Current Scores; \n Computer: ${computerScore} \n Your Current Score: ${humanScore}`);
+	scoreBoard.style.border = "2px solid lightgreen"
+	humanScoreDiv.innerText = `Human Score: ${humanScore}`
+	roundResultDisplay.innerText = `You  won. 💪`
 }
 
 
 function computerWin() {
 	computerScore++;
-	console.log(`Computer won. Try again \n Current Scores; \n Computer: ${computerScore} \n You Current Score: ${humanScore}`);
+	scoreBoard.style.border = "2px solid pink"
+	computerScoreDiv.innerText = `Computer Score: ${computerScore}`
+	roundResultDisplay.innerText = `Computer won. Try Again ‎😓`
 }
 
 
 let humanScore =  0;
 let computerScore = 0;
-let rounds = 5;
-button1.innerHTML = "START"
-button2.style.display = "none"
 
 
 function reset() {
 	humanScore = 0;
 	computerScore = 0;
-	rounds = 5;
-	button1.innerHTML = "PLAY AGAIN"
-	button2.style.display = "none"
+}
+
+function gameOver() {
+	gamePlayDiv.classList.toggle("hide")
+	appTitle.classList.toggle("hide")
+	gameOverDiv.classList.toggle("hide")
 }
 
 function checkState() {
-	if (rounds === 0) {
-	    console.log(`GAME DONE! \n YOUR FINAL SCHOOL: ${humanScore} \n COMPUTER'S SCORE: ${computerScore}`);
-	    if (humanScore > computerScore) {
-	        console.log("You win");
-	    }
-	    else if (humanScore === computerScore) {
-	        console.log("IT WAS A TIE! TRY AGAIN");
-	    }
-	    else {
-	        console.log("Game lost. Try again");
-	    }
-	    
-	    reset();
+	if (humanScore === 5) {
+		gameOverPara.innerText = `You won 🎉`
+		gameOver()
+		reset()
 	}
-	else {
-	    console.log(`You have ${rounds} rounds left.`);
+	else if (computerScore === 5) {
+		gameOverPara.innerText = `Computer won 🎧    Try Again? 🧐`
+		gameOver()
+		reset()
 	}
 }
 
-function playRound(humanChoice = getHumanChoice(), computerChoice = getComputerChoice()) {
-
-
-	console.log(`Your Choice: ${humanChoice} \n Computer chose: ${computerChoice}`)
+function playRound(humanChoice, computerChoice = getComputerChoice()) {
+	
+	humanChoiceDisplay.innerText = `Your Choice: ${choiceEmojis[humanChoice]}`
+	computerChoiceDisplay.innerText = `Computer Choice: ‎${choiceEmojis[computerChoice]}`  
+	
 	
 	if (humanChoice === computerChoice) {
-		console.log("It's a tie, try again")
+		scoreBoard.style.border = "2px solid lightblue"
+		roundResultDisplay.innerText = "It's a tie. Try again ‎🧐"
 	}
-	else if (humanChoice === "scissors") {
-		if (computerChoice === "rock") {
+	else if (humanChoice === "SCISSORS") {
+		if (computerChoice === "ROCK") {
 			computerWin()
 		}
-		else if (computerChoice === "paper") {
+		else if (computerChoice === "PAPER") {
 			humanWin()
 		};
 	}
-	else if (humanChoice === "rock") {
-		if (computerChoice === "scissors") {
+	else if (humanChoice === "ROCK") {
+		if (computerChoice === "SCISSORS") {
 			humanWin()
 		}
-		else if (computerChoice === "paper") {
+		else if (computerChoice === "PAPER") {
 			computerWin()
 		};
 	}
-	else if (humanChoice === "paper") {
-		if (computerChoice === "scissors") {
+	else if (humanChoice === "PAPER") {
+		if (computerChoice === "SCISSORS") {
 			computerWin()
 		}
-		else if (computerChoice === "rock") {
+		else if (computerChoice === "ROCK") {
 			humanWin()
 		};
 	};
-	rounds --
 	checkState()
 }
 
-function playGame() {
-	console.log(`ROCK PAPER SCISSORS! \n Game on! \n You got ${rounds} rounds left!`)
-	button1.innerHTML = "RESTART"
-	button2.innerHTML = "CLICK TO MAKE FIRST CHOICE"
-	button2.style.display = "block"
-	
-	button2.addEventListener("click", () => {
-	playRound()
-	button2.innerHTML = "CLICK TO MAKE NEXT CHOICE"
-	});
-};
-
-
-
-button1.addEventListener("click", () => {
-	playGame()
-});
 

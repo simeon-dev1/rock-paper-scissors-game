@@ -6,10 +6,61 @@
     <title>Document</title>
     <script src="//cdn.jsdelivr.net/npm/eruda"></script>
     <script>eruda.init();</script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-	<button style="width: 50%; height: 50px;" class="button1"></button>
-	<button style="width: 50%; height: 50px;" class="button2">2</button>
+	<!-- Main Heading -->
+	<h1>ROCK PAPER SCISSORS GAME</h1>
+
+	<!-- DISPLAY TO START GAME -->
+	<div id="start-game">
+		<h3>Start Game 🔥</h3>
+		<button id="play-btn">PLAY</button>
+	</div> 
+
+	<!-- GAME PLAY! -->
+	<div id="game-play-div" class="hide">
+		<div id="game-start-head">
+			<h3>Game On!</h3>
+			<p>Click on any Button Below To Make Your Choice</p>
+		</div>
+		<!-- Score Board -->
+		<div id="score-board">
+			<div id="human-score">
+				Your Score: <span>0</span>
+			</div>
+			<div id="computer-score">
+				Computer Score: <span>0</span>
+			</div>
+		</div>
+		<!-- Choice Board -->
+		<div id="choice-display-div">
+  			<h3>CHOSEN</h3>
+  			<div id="human-choice">
+  				Your Choice: ‎🤔
+  			</div>
+  			<div id="computer-choice">
+  				Computer Choice: ‎💻
+  			</div>
+		</div>
+		<div id="round-result">
+			Waiting...
+		</div>
+		<!-- Make Choice Box When Playing -->
+		<div id="option-buttons">
+			<button class="option-btn" id="rock">ROCK</button>
+			<button class="option-btn" id="paper">PAPER</button>
+			<button class="option-btn" id="scissors">SCISSORS</button>
+		</div>
+  </div>
+  
+  <!-- GAME OVER DISPLAY -->
+  <div id="game-over-div" class="hide">
+  	<h2>GAME OVER!</h2>
+  	<h3>RESULTS</h3>
+  	<p></p>
+  	<button>HOME... Play</button>
+  </div>
 </body>
 
 <script src="app.js">
