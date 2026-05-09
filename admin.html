@@ -38,10 +38,10 @@
   <script>
     const SUPABASE_URL = 'https://fqqngzpoclvisiberzev.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxcW5nenBvY2x2aXNpYmVyemV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTEzNzQsImV4cCI6MjA5Mzg4NzM3NH0.LuLb0f5m1tjTbpWjGJ8uP03ImI5-7IHu3XcOgV15XvQ';
-    const supabaseAdmin = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const adminClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let adminUser = null;
 
-    supabaseAdmin.auth.onAuthStateChange((event, session) => {
+    adminClient.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
         adminUser = session.user;
         checkAdminRole();
@@ -56,27 +56,27 @@
       e.preventDefault();
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
-      const { error } = await supabaseAdmin.auth.signInWithPassword({ email, password });
+      const { error } = await adminClient.auth.signInWithPassword({ email, password });
       if (error) document.getElementById('login-error').textContent = error.message;
     });
 
-    document.getElementById('logout-btn').addEventListener('click', () => supabaseAdmin.auth.signOut());
+    document.getElementById('logout-btn').addEventListener('click', () => adminClient.auth.signOut());
 
     async function checkAdminRole() {
-      const { data } = await supabaseAdmin.from('rpc_admins').select('user_id').eq('user_id', adminUser.id).single();
+      const { data } = await adminClient.from('rpc_admins').select('user_id').eq('user_id', adminUser.id).single();
       if (data) {
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('admin-dashboard').style.display = 'block';
         fetchUsers();
       } else {
         alert('Not an admin.');
-        supabaseAdmin.auth.signOut();
+        adminClient.auth.signOut();
       }
     }
 
     async function fetchUsers() {
-      const { data: users } = await supabaseAdmin.from('rpc_users').select('id, created_at, trial_ends_at');
-      const { data: subs } = await supabaseAdmin.from('rpc_subscriptions').select('user_id, subscription_expiry');
+      const { data: users } = await adminClient.from('rpc_users').select('id, created_at, trial_ends_at');
+      const { data: subs } = await adminClient.from('rpc_subscriptions').select('user_id, subscription_expiry');
       const usersDiv = document.getElementById('users-list');
       usersDiv.innerHTML = '';
       (users || []).forEach(user => {
@@ -99,7 +99,7 @@
     async function confirmPayment(userId) {
       const newExpiry = new Date();
       newExpiry.setDate(newExpiry.getDate() + 30);
-      const { error } = await supabaseAdmin
+      const { error } = await adminClient
         .from('rpc_subscriptions')
         .upsert({ user_id: userId, subscription_expiry: newExpiry.toISOString() }, { onConflict: 'user_id' });
       if (error) alert('Error: ' + error.message);

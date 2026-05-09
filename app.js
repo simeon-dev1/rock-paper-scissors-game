@@ -1,11 +1,11 @@
 /*************************************************************
- * RPS WORLD CLASS – PREMIUM AUTH + GAME
+ * RPS WORLD CLASS – PREMIUM AUTH + GAME (COMPLETE)
  *************************************************************/
 const SUPABASE_URL = 'https://fqqngzpoclvisiberzev.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxcW5nenBvY2x2aXNpYmVyemV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTEzNzQsImV4cCI6MjA5Mzg4NzM3NH0.LuLb0f5m1tjTbpWjGJ8uP03ImI5-7IHu3XcOgV15XvQ';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ---------- DOM Elements ----------
+// DOM Elements
 const screens = {
   auth: document.getElementById('auth-screen'),
   paywall: document.getElementById('paywall-screen'),
@@ -23,42 +23,26 @@ const authSuccessEl = document.getElementById('auth-success');
 const logoutBtn = document.getElementById('logout-btn');
 const whatsappLink = document.getElementById('whatsapp-link');
 
-// Current user & access
 let currentUser = null;
 let gameInstance = null;
 
-// ---------- Helper: Show Screen ----------
+// ---------- Screen Helpers ----------
 function showScreen(screenId) {
   Object.values(screens).forEach(s => s.classList.add('hide'));
   screens[screenId].classList.remove('hide');
 }
-
-// ---------- Auth Panel Transitions ----------
 function showAuthPanel(panelId) {
-  Object.values(authPanels).forEach(p => {
-    p.classList.add('hidden-right');
-  });
+  Object.values(authPanels).forEach(p => p.classList.add('hidden-right'));
   authPanels[panelId].classList.remove('hidden-right');
   authErrorEl.textContent = '';
   authSuccessEl.textContent = '';
 }
 
-document.getElementById('show-signup').addEventListener('click', (e) => {
-  e.preventDefault();
-  showAuthPanel('signup');
-});
-document.getElementById('show-signin-from-signup').addEventListener('click', (e) => {
-  e.preventDefault();
-  showAuthPanel('signin');
-});
-document.getElementById('forgot-password-btn').addEventListener('click', (e) => {
-  e.preventDefault();
-  showAuthPanel('forgot');
-});
-document.getElementById('back-to-signin-btn').addEventListener('click', (e) => {
-  e.preventDefault();
-  showAuthPanel('signin');
-});
+// ---------- Auth Panel Switches ----------
+document.getElementById('show-signup').addEventListener('click', (e) => { e.preventDefault(); showAuthPanel('signup'); });
+document.getElementById('show-signin-from-signup').addEventListener('click', (e) => { e.preventDefault(); showAuthPanel('signin'); });
+document.getElementById('forgot-password-btn').addEventListener('click', (e) => { e.preventDefault(); showAuthPanel('forgot'); });
+document.getElementById('back-to-signin-btn').addEventListener('click', (e) => { e.preventDefault(); showAuthPanel('signin'); });
 
 // ---------- Password Visibility Toggle ----------
 document.querySelectorAll('.password-toggle').forEach(btn => {
@@ -80,41 +64,38 @@ document.getElementById('signup-password').addEventListener('input', (e) => {
   if (val.match(/[A-Z]/)) strength++;
   if (val.match(/[0-9]/)) strength++;
   if (val.match(/[^A-Za-z0-9]/)) strength++;
-
   const percent = (strength / 4) * 100;
   bar.style.width = percent + '%';
-  if (strength <= 1) bar.style.background = 'var(--lose)';
-  else if (strength === 2 || strength === 3) bar.style.background = 'var(--tie)';
-  else bar.style.background = 'var(--win)';
-
-  if (strength === 0) text.textContent = '';
-  else if (strength <= 2) text.textContent = 'Weak';
-  else if (strength === 3) text.textContent = 'Good';
-  else text.textContent = 'Strong';
+  bar.style.background = strength <= 1 ? 'var(--lose)' : strength <= 3 ? 'var(--tie)' : 'var(--win)';
+  text.textContent = strength === 0 ? '' : strength <= 2 ? 'Weak' : strength === 3 ? 'Good' : 'Strong';
   text.style.color = strength <= 2 ? 'var(--lose)' : strength === 3 ? 'var(--tie)' : 'var(--win)';
 });
 
+// ---------- Shake Animation ----------
+function shakeElement(el) {
+  el.classList.add('shake');
+  setTimeout(() => el.classList.remove('shake'), 300);
+}
+
 // ---------- Auth Functions ----------
 async function signUp(email, password) {
-  const { data, error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabaseClient.auth.signUp({ email, password });
   if (error) {
     shakeElement(document.getElementById('signup-panel'));
     authErrorEl.textContent = error.message;
     return;
   }
   if (data.user && !data.session) {
-    // Email confirmation required
     authSuccessEl.textContent = '✅ Account created! Check your email (including spam) for the confirmation link, then log in.';
     setTimeout(() => showAuthPanel('signin'), 3000);
   } else {
-    // Confirmation disabled
     await handleUserRecord(data.user);
     await checkAccess();
   }
 }
 
 async function signIn(email, password) {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
   if (error) {
     shakeElement(document.getElementById('signin-panel'));
     authErrorEl.textContent = error.message;
@@ -126,8 +107,8 @@ async function signIn(email, password) {
 }
 
 async function sendPasswordReset(email) {
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin, // will redirect here after reset
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin,
   });
   if (error) {
     shakeElement(document.getElementById('forgot-panel'));
@@ -137,45 +118,20 @@ async function sendPasswordReset(email) {
   }
 }
 
-async function signOut() {
-  await supabase.auth.signOut();
-  currentUser = null;
-  if (gameInstance) {
-    gameInstance.destroy();
-    gameInstance = null;
-  }
-  logoutBtn.style.display = 'none';
-  showScreen('auth');
-}
-
-// Ensure user record exists
 async function handleUserRecord(user) {
-  const { data } = await supabase.from('rpc_users').select('id').eq('id', user.id).single();
+  const { data } = await supabaseClient.from('rpc_users').select('id').eq('id', user.id).single();
   if (!data) {
-    await supabase.from('rpc_users').insert({ id: user.id });
+    await supabaseClient.from('rpc_users').insert({ id: user.id });
   }
 }
 
-// Check trial / subscription
 async function checkAccess() {
   if (!currentUser) return showScreen('auth');
-
-  const { data: userRec } = await supabase
-    .from('rpc_users')
-    .select('trial_ends_at')
-    .eq('id', currentUser.id)
-    .single();
-
-  const { data: sub } = await supabase
-    .from('rpc_subscriptions')
-    .select('subscription_expiry')
-    .eq('user_id', currentUser.id)
-    .single();
-
+  const { data: userRec } = await supabaseClient.from('rpc_users').select('trial_ends_at').eq('id', currentUser.id).single();
+  const { data: sub } = await supabaseClient.from('rpc_subscriptions').select('subscription_expiry').eq('user_id', currentUser.id).single();
   const now = new Date();
   const trialEnd = userRec?.trial_ends_at ? new Date(userRec.trial_ends_at) : null;
   const subExpiry = sub?.subscription_expiry ? new Date(sub.subscription_expiry) : null;
-
   if ((subExpiry && subExpiry > now) || (trialEnd && trialEnd > now)) {
     showGameMenu();
   } else {
@@ -184,45 +140,41 @@ async function checkAccess() {
   }
 }
 
+async function signOut() {
+  await supabaseClient.auth.signOut();
+  currentUser = null;
+  if (gameInstance) { gameInstance.destroy(); gameInstance = null; }
+  logoutBtn.style.display = 'none';
+  showScreen('auth');
+}
+
 function showGameMenu() {
   showScreen('start');
   if (!gameInstance) gameInstance = new Game();
-}
-
-// Shake animation
-function shakeElement(el) {
-  el.classList.add('shake');
-  setTimeout(() => el.classList.remove('shake'), 300);
 }
 
 // ---------- Event Listeners ----------
 document.getElementById('signup-btn').addEventListener('click', () => {
   const email = document.getElementById('signup-email').value.trim();
   const password = document.getElementById('signup-password').value;
-  if (password.length < 6) {
-    authErrorEl.textContent = 'Password must be at least 6 characters.';
-    return;
-  }
+  if (password.length < 6) { authErrorEl.textContent = 'Password must be at least 6 characters.'; return; }
   signUp(email, password);
 });
-
 document.getElementById('signin-btn').addEventListener('click', () => {
   const email = document.getElementById('signin-email').value.trim();
   const password = document.getElementById('signin-password').value;
   signIn(email, password);
 });
-
 document.getElementById('send-reset-btn').addEventListener('click', () => {
   const email = document.getElementById('forgot-email').value.trim();
   if (!email) return;
   sendPasswordReset(email);
 });
-
 logoutBtn.addEventListener('click', signOut);
 document.getElementById('check-access-btn').addEventListener('click', checkAccess);
 
-// Auth state listener (handles redirects from email confirmation)
-supabase.auth.onAuthStateChange(async (event, session) => {
+// ---------- Auth State Listener ----------
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
     currentUser = session.user;
     logoutBtn.style.display = 'inline-block';
@@ -235,8 +187,8 @@ supabase.auth.onAuthStateChange(async (event, session) => {
   }
 });
 
-// Initial session check
-supabase.auth.getUser().then(({ data: { user } }) => {
+// ---------- Initial Session Check ----------
+supabaseClient.auth.getUser().then(({ data: { user } }) => {
   if (user) {
     currentUser = user;
     logoutBtn.style.display = 'inline-block';
@@ -246,10 +198,9 @@ supabase.auth.getUser().then(({ data: { user } }) => {
   }
 });
 
-// ==================== GAME ENGINE ====================
+// ==================== GAME ENGINE (COMPLETE) ====================
 class Game {
   constructor() {
-    // DOM elements (same as before)
     this.modeButtons = document.querySelectorAll('.mode-btn');
     this.roundsButtons = document.querySelectorAll('.rounds-btn');
     this.startBtn = document.getElementById('start-game-btn');
