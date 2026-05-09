@@ -1,67 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Rock Paper Scissors · World Class</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-	<!-- Main Heading -->
-	<h1>ROCK PAPER SCISSORS GAME</h1>
+<body class="dark">
+  <div class="app-wrapper">
+    <!-- Header -->
+    <header class="app-header">
+      <h1 class="title">⚔️ Rock · Paper · Scissors</h1>
+      <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme">🌓</button>
+    </header>
 
-	<!-- DISPLAY TO START GAME -->
-	<div id="start-game">
-		<h3>Start Game  🔥</h3>
-		<button id="play-btn">PLAY</button>
-	</div> 
+    <!-- Start Screen -->
+    <section id="start-screen" class="screen">
+      <div class="card">
+        <h2>Choose Your Mode</h2>
+        <div class="mode-select">
+          <button class="mode-btn active" data-mode="best-of">Best of 5</button>
+          <button class="mode-btn" data-mode="endless">Endless (first to 5)</button>
+          <button class="mode-btn" data-mode="timed">Timed (15s)</button>
+        </div>
+        <div id="best-of-options" class="best-of-select">
+          <button class="rounds-btn active" data-rounds="5">5 Rounds</button>
+          <button class="rounds-btn" data-rounds="3">3 Rounds</button>
+          <button class="rounds-btn" data-rounds="7">7 Rounds</button>
+        </div>
+        <button id="start-game-btn" class="primary-btn">Start Game</button>
+        <div class="stats-preview">
+          <p>🏆 Wins: <span id="total-wins">0</span></p>
+          <p>📊 Win Rate: <span id="win-rate">0%</span></p>
+        </div>
+      </div>
+    </section>
 
-	<!-- GAME PLAY! -->
-	<div id="game-play-div" class="hide">
-		<div id="game-start-head">
-			<h3>Game On!</h3>
-			<p>Click on any Button Below To Make Your Choice</p>
-		</div>
-		<!-- Score Board -->
-		<div id="score-board">
-			<div id="human-score">
-				Your Score: <span>0</span>
-			</div>
-			<div id="computer-score">
-				Computer Score: <span>0</span>
-			</div>
-		</div>
-		<!-- Choice Board -->
-		<div id="choice-display-div">
-  			<h3>CHOSEN</h3>
-  			<div id="human-choice">
-  				Your Choice: ‎🤔
-  			</div>
-  			<div id="computer-choice">
-  				Computer Choice: ‎💻
-  			</div>
-		</div>
-		<div id="round-result">
-			Waiting...
-		</div>
-		<!-- Make Choice Box When Playing -->
-		<div id="option-buttons">
-			<button class="option-btn" id="rock">ROCK</button>
-			<button class="option-btn" id="paper">PAPER</button>
-			<button class="option-btn" id="scissors">SCISSORS</button>
-		</div>
+    <!-- Gameplay Screen -->
+    <section id="gameplay-screen" class="screen hide">
+      <div class="top-bar">
+        <div class="mode-indicator" id="mode-indicator">Best of 5</div>
+        <div class="round-counter" id="round-counter">Round 1/5</div>
+        <button id="quit-btn" class="text-btn">✕ Quit</button>
+      </div>
+
+      <!-- Scoreboard with bars -->
+      <div class="scoreboard">
+        <div class="player-score">
+          <span class="label">You</span>
+          <div class="score-bar-wrapper">
+            <div class="score-bar" id="human-bar"></div>
+          </div>
+          <span id="human-score-text" class="score-value">0</span>
+        </div>
+        <div class="vs-divider">VS</div>
+        <div class="player-score opponent">
+          <span class="label">Computer</span>
+          <div class="score-bar-wrapper">
+            <div class="score-bar" id="computer-bar"></div>
+          </div>
+          <span id="computer-score-text" class="score-value">0</span>
+        </div>
+      </div>
+
+      <!-- Timer for timed mode -->
+      <div id="timer-display" class="timer hide">⏳ <span id="timer-seconds">15</span>s</div>
+
+      <!-- Round result feedback -->
+      <div id="round-result" class="round-result"></div>
+
+      <!-- Choice displays -->
+      <div class="choice-display">
+        <div class="choice-card" id="human-choice-card">
+          <span class="choice-label">Your choice</span>
+          <span id="human-choice-emoji" class="choice-emoji">❓</span>
+        </div>
+        <div class="choice-vs">
+          <span id="choice-result-icon">⚡</span>
+        </div>
+        <div class="choice-card" id="computer-choice-card">
+          <span class="choice-label">Computer</span>
+          <span id="computer-choice-emoji" class="choice-emoji">❓</span>
+        </div>
+      </div>
+
+      <!-- Option buttons + Power-ups -->
+      <div class="actions-area">
+        <div class="option-buttons">
+          <button class="option-btn" data-choice="ROCK">🪨 Rock</button>
+          <button class="option-btn" data-choice="PAPER">🧻 Paper</button>
+          <button class="option-btn" data-choice="SCISSORS">✂️ Scissors</button>
+        </div>
+        <div class="powerups">
+          <button id="powerup-mirror" class="powerup-btn" title="Mirror: Copy opponent's last move">🪞 Mirror</button>
+          <button id="powerup-shield" class="powerup-btn" title="Shield: Block one loss">🛡️ Shield</button>
+          <button id="powerup-double" class="powerup-btn" title="Double Points: Next win counts x2">✨ x2</button>
+        </div>
+      </div>
+
+      <!-- Round history -->
+      <details class="history-panel">
+        <summary>📜 Round History</summary>
+        <ul id="history-list" class="history-list"></ul>
+      </details>
+    </section>
+
+    <!-- Game Over Screen -->
+    <section id="gameover-screen" class="screen hide">
+      <div class="card gameover-card">
+        <div class="trophy">🏆</div>
+        <h2 id="gameover-message">You Won!</h2>
+        <div class="final-score">
+          <span>You: <strong id="final-human-score">0</strong></span>
+          <span>Computer: <strong id="final-computer-score">0</strong></span>
+        </div>
+        <div id="achievement-unlock" class="achievement"></div>
+        <button id="play-again-btn" class="primary-btn">Play Again</button>
+        <button id="go-to-start-btn" class="text-btn">Change Mode</button>
+      </div>
+      <canvas id="confetti-canvas"></canvas>
+    </section>
   </div>
-  
-  <!-- GAME OVER DISPLAY -->
-  <div id="game-over-div" class="hide">
-  	<h2>GAME OVER!</h2>
-  	<h3>RESULTS</h3>
-  	<p></p>
-  	<button>HOME... Play</button>
-  </div>
+
+  <script src="app.js"></script>
 </body>
-
-<script src="app.js">
-</script>
-
 </html>
