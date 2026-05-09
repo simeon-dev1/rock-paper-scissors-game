@@ -3,24 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Rock Paper Scissors · World Class</title>
+  <title>RPS World Class · Premium</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="dark">
+<body>
   <div class="app-wrapper">
-    <!-- Header -->
     <header class="app-header">
       <h1 class="title">⚔️ Rock · Paper · Scissors</h1>
-      <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme">🌓</button>
+      <div>
+        <button id="theme-toggle" class="icon-btn">🌓</button>
+        <button id="logout-btn" class="text-btn" style="display:none;">Logout</button>
+      </div>
     </header>
 
-    <!-- Start Screen -->
-    <section id="start-screen" class="screen">
+    <!-- Auth Screen -->
+    <section id="auth-screen" class="screen">
+      <div class="card">
+        <h2>Welcome</h2>
+        <p>Sign up for a 7-day free trial, or log in.</p>
+        <div id="auth-forms">
+          <div id="signup-form" class="auth-form">
+            <h3>Create Account</h3>
+            <input type="email" id="signup-email" placeholder="Email" required>
+            <input type="password" id="signup-password" placeholder="Password (min 6 chars)" required>
+            <button id="signup-btn" class="primary-btn">Sign Up</button>
+            <p class="switch-form">Already have an account? <a href="#" id="show-signin">Sign In</a></p>
+          </div>
+          <div id="signin-form" class="auth-form hide">
+            <h3>Log In</h3>
+            <input type="email" id="signin-email" placeholder="Email" required>
+            <input type="password" id="signin-password" placeholder="Password" required>
+            <button id="signin-btn" class="primary-btn">Log In</button>
+            <p class="switch-form">Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
+          </div>
+        </div>
+        <p id="auth-error" style="color:#f87171; min-height:1.2em;"></p>
+      </div>
+    </section>
+
+    <!-- Paywall Screen -->
+    <section id="paywall-screen" class="screen hide">
+      <div class="card">
+        <h2>🔒 Subscription Required</h2>
+        <p>Your free trial has expired. Subscribe to continue playing.</p>
+        <div class="payment-details">
+          <div class="detail-row"><span class="label">Account Number:</span><span class="value highlight">5950907698</span></div>
+          <div class="detail-row"><span class="label">Bank:</span><span class="value">Moniepoint</span></div>
+          <div class="detail-row"><span class="label">Account Name:</span><span class="value">Sweetened Capacity Enterprise</span></div>
+          <div class="detail-row"><span class="label">Amount:</span><span class="value">₦1,000/month</span></div>
+        </div>
+        <p class="instruction">After payment, message admin on WhatsApp with your email to confirm.</p>
+        <a id="whatsapp-link" href="#" target="_blank" class="primary-btn" style="background-color:#25D366;text-decoration:none;">
+          <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" width="22" style="vertical-align:middle;margin-right:8px;">
+          Message Admin on WhatsApp
+        </a>
+        <button id="check-access-btn" class="text-btn">Check Access Again</button>
+      </div>
+    </section>
+
+    <!-- Start Screen (Game Menu) -->
+    <section id="start-screen" class="screen hide">
       <div class="card">
         <h2>Choose Your Mode</h2>
+        <!-- (identical to earlier world-class version) -->
         <div class="mode-select">
           <button class="mode-btn active" data-mode="best-of">Best of 5</button>
           <button class="mode-btn" data-mode="endless">Endless (first to 5)</button>
@@ -39,55 +88,40 @@
       </div>
     </section>
 
-    <!-- Gameplay Screen -->
+    <!-- Gameplay Screen (full game UI) -->
     <section id="gameplay-screen" class="screen hide">
+      <!-- (identical to earlier world-class version, with top bar, scoreboard, choices, powerups, history) -->
       <div class="top-bar">
         <div class="mode-indicator" id="mode-indicator">Best of 5</div>
         <div class="round-counter" id="round-counter">Round 1/5</div>
         <button id="quit-btn" class="text-btn">✕ Quit</button>
       </div>
-
-      <!-- Scoreboard with bars -->
       <div class="scoreboard">
         <div class="player-score">
           <span class="label">You</span>
-          <div class="score-bar-wrapper">
-            <div class="score-bar" id="human-bar"></div>
-          </div>
+          <div class="score-bar-wrapper"><div class="score-bar" id="human-bar"></div></div>
           <span id="human-score-text" class="score-value">0</span>
         </div>
         <div class="vs-divider">VS</div>
         <div class="player-score opponent">
           <span class="label">Computer</span>
-          <div class="score-bar-wrapper">
-            <div class="score-bar" id="computer-bar"></div>
-          </div>
+          <div class="score-bar-wrapper"><div class="score-bar" id="computer-bar"></div></div>
           <span id="computer-score-text" class="score-value">0</span>
         </div>
       </div>
-
-      <!-- Timer for timed mode -->
       <div id="timer-display" class="timer hide">⏳ <span id="timer-seconds">15</span>s</div>
-
-      <!-- Round result feedback -->
       <div id="round-result" class="round-result"></div>
-
-      <!-- Choice displays -->
       <div class="choice-display">
         <div class="choice-card" id="human-choice-card">
           <span class="choice-label">Your choice</span>
           <span id="human-choice-emoji" class="choice-emoji">❓</span>
         </div>
-        <div class="choice-vs">
-          <span id="choice-result-icon">⚡</span>
-        </div>
+        <div class="choice-vs"><span id="choice-result-icon">⚡</span></div>
         <div class="choice-card" id="computer-choice-card">
           <span class="choice-label">Computer</span>
           <span id="computer-choice-emoji" class="choice-emoji">❓</span>
         </div>
       </div>
-
-      <!-- Option buttons + Power-ups -->
       <div class="actions-area">
         <div class="option-buttons">
           <button class="option-btn" data-choice="ROCK">🪨 Rock</button>
@@ -100,8 +134,6 @@
           <button id="powerup-double" class="powerup-btn" title="Double Points: Next win counts x2">✨ x2</button>
         </div>
       </div>
-
-      <!-- Round history -->
       <details class="history-panel">
         <summary>📜 Round History</summary>
         <ul id="history-list" class="history-list"></ul>
