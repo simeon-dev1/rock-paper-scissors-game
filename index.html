@@ -14,38 +14,83 @@
   <div class="app-wrapper">
     <header class="app-header">
       <h1 class="title">⚔️ Rock · Paper · Scissors</h1>
-      <div>
+      <div class="header-actions">
         <button id="theme-toggle" class="icon-btn">🌓</button>
         <button id="logout-btn" class="text-btn" style="display:none;">Logout</button>
       </div>
     </header>
 
-    <!-- Auth Screen -->
+    <!-- AUTH SCREEN (Premium) -->
     <section id="auth-screen" class="screen">
-      <div class="card">
-        <h2>Welcome</h2>
-        <p>Sign up for a 7-day free trial, or log in.</p>
-        <div id="auth-forms">
-          <div id="signup-form" class="auth-form">
-            <h3>Create Account</h3>
-            <input type="email" id="signup-email" placeholder="Email" required>
-            <input type="password" id="signup-password" placeholder="Password (min 6 chars)" required>
-            <button id="signup-btn" class="primary-btn">Sign Up</button>
-            <p class="switch-form">Already have an account? <a href="#" id="show-signin">Sign In</a></p>
+      <div class="auth-card">
+        <div class="auth-panels" id="auth-panels">
+          <!-- Sign In -->
+          <div class="auth-panel" id="signin-panel">
+            <h2>Welcome Back</h2>
+            <p class="auth-sub">Log in to continue your journey</p>
+            <div class="input-group">
+              <input type="email" id="signin-email" placeholder=" " required>
+              <label>Email</label>
+            </div>
+            <div class="input-group">
+              <input type="password" id="signin-password" placeholder=" " required>
+              <label>Password</label>
+              <button class="password-toggle" type="button" data-target="signin-password">👁️</button>
+            </div>
+            <button id="signin-btn" class="primary-btn auth-btn">Log In</button>
+            <button id="forgot-password-btn" class="text-btn-small">Forgot password?</button>
+            <p class="switch-form">New here? <a href="#" id="show-signup">Create an account</a></p>
           </div>
-          <div id="signin-form" class="auth-form hide">
-            <h3>Log In</h3>
-            <input type="email" id="signin-email" placeholder="Email" required>
-            <input type="password" id="signin-password" placeholder="Password" required>
-            <button id="signin-btn" class="primary-btn">Log In</button>
-            <p class="switch-form">Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
+
+          <!-- Sign Up -->
+          <div class="auth-panel hidden-right" id="signup-panel">
+            <h2>Create Your Account</h2>
+            <p class="auth-sub">Start your 7‑day free trial</p>
+            <div class="input-group">
+              <input type="email" id="signup-email" placeholder=" " required>
+              <label>Email</label>
+            </div>
+            <div class="input-group">
+              <input type="password" id="signup-password" placeholder=" " required minlength="6">
+              <label>Password</label>
+              <button class="password-toggle" type="button" data-target="signup-password">👁️</button>
+              <div class="password-strength" id="password-strength">
+                <div class="strength-bar"></div>
+                <span class="strength-text"></span>
+              </div>
+            </div>
+            <button id="signup-btn" class="primary-btn auth-btn">Start Free Trial</button>
+            <p class="switch-form">Already have an account? <a href="#" id="show-signin-from-signup">Log in</a></p>
+            <p class="terms">By signing up, you agree to our Terms & Privacy.</p>
+          </div>
+
+          <!-- Forgot Password -->
+          <div class="auth-panel hidden-right" id="forgot-panel">
+            <h2>Reset Password</h2>
+            <p class="auth-sub">Enter your email to receive a reset link</p>
+            <div class="input-group">
+              <input type="email" id="forgot-email" placeholder=" " required>
+              <label>Email</label>
+            </div>
+            <button id="send-reset-btn" class="primary-btn auth-btn">Send Reset Link</button>
+            <button id="back-to-signin-btn" class="text-btn-small">Back to Login</button>
           </div>
         </div>
-        <p id="auth-error" style="color:#f87171; min-height:1.2em;"></p>
+
+        <!-- Decorative orbs -->
+        <div class="auth-orb orb-1"></div>
+        <div class="auth-orb orb-2"></div>
+        <div class="auth-orb orb-3"></div>
+
+        <!-- Feedback -->
+        <div class="auth-message">
+          <span id="auth-error"></span>
+          <span id="auth-success"></span>
+        </div>
       </div>
     </section>
 
-    <!-- Paywall Screen -->
+    <!-- PAYWALL SCREEN -->
     <section id="paywall-screen" class="screen hide">
       <div class="card">
         <h2>🔒 Subscription Required</h2>
@@ -65,11 +110,10 @@
       </div>
     </section>
 
-    <!-- Start Screen (Game Menu) -->
+    <!-- GAME MENU SCREEN -->
     <section id="start-screen" class="screen hide">
       <div class="card">
         <h2>Choose Your Mode</h2>
-        <!-- (identical to earlier world-class version) -->
         <div class="mode-select">
           <button class="mode-btn active" data-mode="best-of">Best of 5</button>
           <button class="mode-btn" data-mode="endless">Endless (first to 5)</button>
@@ -88,9 +132,8 @@
       </div>
     </section>
 
-    <!-- Gameplay Screen (full game UI) -->
+    <!-- GAMEPLAY SCREEN -->
     <section id="gameplay-screen" class="screen hide">
-      <!-- (identical to earlier world-class version, with top bar, scoreboard, choices, powerups, history) -->
       <div class="top-bar">
         <div class="mode-indicator" id="mode-indicator">Best of 5</div>
         <div class="round-counter" id="round-counter">Round 1/5</div>
@@ -129,9 +172,9 @@
           <button class="option-btn" data-choice="SCISSORS">✂️ Scissors</button>
         </div>
         <div class="powerups">
-          <button id="powerup-mirror" class="powerup-btn" title="Mirror: Copy opponent's last move">🪞 Mirror</button>
-          <button id="powerup-shield" class="powerup-btn" title="Shield: Block one loss">🛡️ Shield</button>
-          <button id="powerup-double" class="powerup-btn" title="Double Points: Next win counts x2">✨ x2</button>
+          <button id="powerup-mirror" class="powerup-btn">🪞 Mirror</button>
+          <button id="powerup-shield" class="powerup-btn">🛡️ Shield</button>
+          <button id="powerup-double" class="powerup-btn">✨ x2</button>
         </div>
       </div>
       <details class="history-panel">
@@ -140,7 +183,7 @@
       </details>
     </section>
 
-    <!-- Game Over Screen -->
+    <!-- GAME OVER SCREEN -->
     <section id="gameover-screen" class="screen hide">
       <div class="card gameover-card">
         <div class="trophy">🏆</div>

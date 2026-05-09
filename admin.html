@@ -38,10 +38,9 @@
   <script>
     const SUPABASE_URL = 'https://fqqngzpoclvisiberzev.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxcW5nenBvY2x2aXNpYmVyemV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTEzNzQsImV4cCI6MjA5Mzg4NzM3NH0.LuLb0f5m1tjTbpWjGJ8uP03ImI5-7IHu3XcOgV15XvQ';
-    const supabaseAdmin = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseAdmin = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let adminUser = null;
 
-    // Auth state listener
     supabaseAdmin.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
         adminUser = session.user;
@@ -64,7 +63,6 @@
     document.getElementById('logout-btn').addEventListener('click', () => supabaseAdmin.auth.signOut());
 
     async function checkAdminRole() {
-      if (!adminUser) return;
       const { data } = await supabaseAdmin.from('rpc_admins').select('user_id').eq('user_id', adminUser.id).single();
       if (data) {
         document.getElementById('login-section').style.display = 'none';
@@ -72,7 +70,7 @@
         fetchUsers();
       } else {
         alert('Not an admin.');
-        await supabaseAdmin.auth.signOut();
+        supabaseAdmin.auth.signOut();
       }
     }
 
@@ -89,7 +87,7 @@
         card.className = 'user-card';
         card.innerHTML = `
           <div>
-            <strong>User: ${user.id.slice(0,8)}...</strong>
+            <strong>${user.id.slice(0,8)}...</strong>
             <div class="expiry">Trial until: ${trialEnds} | Sub Expiry: ${expiry}</div>
           </div>
           <button class="confirm-btn" onclick="confirmPayment('${user.id}')">Confirm Payment (30d)</button>
@@ -99,7 +97,6 @@
     }
 
     async function confirmPayment(userId) {
-      if (!adminUser) return;
       const newExpiry = new Date();
       newExpiry.setDate(newExpiry.getDate() + 30);
       const { error } = await supabaseAdmin
@@ -107,7 +104,7 @@
         .upsert({ user_id: userId, subscription_expiry: newExpiry.toISOString() }, { onConflict: 'user_id' });
       if (error) alert('Error: ' + error.message);
       else {
-        alert('Payment confirmed! User now has access for 30 days.');
+        alert('Payment confirmed!');
         fetchUsers();
       }
     }
